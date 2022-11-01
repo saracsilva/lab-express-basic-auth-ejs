@@ -2,13 +2,14 @@ const router = require("express").Router();
 const User = require("../models/User.model");
 const bcrypt = require("bcryptjs");
 const app = require("../app");
+const { isLoggedIn, isLoggedOut } = require("../middleware/route-guard.js");
 /* GET SignUP page */
 
-router.get("/signup", (req, res, next) => {
+router.get("/signup", isLoggedOut, (req, res, next) => {
   res.render("auth/signup");
 });
 /* POST SignUP page */
-router.post("/signup", async (req, res) => {
+router.post("/signup", isLoggedOut, async (req, res) => {
   try {
     const salt = bcrypt.genSaltSync(10);
     const hashedPassword = bcrypt.hashSync(req.body.password);
@@ -21,11 +22,11 @@ router.post("/signup", async (req, res) => {
     console.log("error");
   }
 });
-router.get("/login", (req, res, next) => {
+router.get("/login", isLoggedOut, (req, res, next) => {
   res.render("auth/login");
 });
 
-router.post("/login", async (req, res) => {
+router.post("/login", isLoggedOut, async (req, res) => {
   const { username, password } = req.body;
   const currentUser = await User.findOne({ username });
   if (!currentUser) {
@@ -41,5 +42,13 @@ router.post("/login", async (req, res) => {
       res.render("auth/login", { errorMessage: "incorrect password" });
     }
   }
+});
+router.get("/logout", isLoggedIn, (req, res, next) => {
+  req.session.destroy((err) => {
+    if (err) {
+      next(err);
+    }
+    res.redirect("/auth/login");
+  });
 });
 module.exports = router;
