@@ -1,6 +1,6 @@
 <h1>Login</h1>
 
-<form method="POST" action="/auth/signup">
+<form method="POST" action="/auth/login">
   <label
     >Username:
     <input type="text" name="username" required placeholder="username"
@@ -11,3 +11,7 @@
   /></label>
   <button type="submit">Login</button>
 </form>
+
+<% if (typeof errorMessage !== "undefined") { %>
+<p><%= errorMessage %></p>
+<% } %>
